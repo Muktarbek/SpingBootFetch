@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        .login-form {
+            width: 340px;
+            margin: 50px auto;
+        }
+        .login-form form {
+            margin-bottom: 15px;
+            background: #f7f7f7;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+        .login-form h2 {
+            margin: 0 0 15px;
+        }
+        .form-control, .btn {
+            min-height: 38px;
+            border-radius: 2px;
+        }
+        .btn {
+            font-size: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<table id="table-id" class="table table-bordered border-primary">
+    <tr>
+        <th> Id </th>
+        <th> Name </th>
+        <th> Password </th>
+        <th> Age </th>
+        <th>Roles</th>
+        <th> Operations</th>
+    </tr>
+</table>
+<div id="update" class="login-form"></div>
+<div id="add" class="login-form">
+</div>
+
+<button onclick="addUser()" class="btn btn-outline-success">Create new user</button>
+<button onclick="document.location='/'"class="btn btn-outline-primary">login</button>
+<button onclick="document.location='/user'"class="btn btn-light">user</button>
+<script>
+    function register() {
+        const register = document.getElementById('register');
+        let url = 'http://localhost:8080/api';
+
+        register.addEventListener('click', async function (event) {
+
+            event.preventDefault();
+
+
+            let username = document.getElementById('username').value;
+            let password1 = document.getElementById('password').value;
+            let age1 = document.getElementById('user_age').value;
+            let roles = [];
+            if (document.getElementById('role_user').checked) {
+                let array = new Object();
+                array.id = 1;
+                roles.push(array);
+            }
+            if (document.getElementById('role_admin').checked) {
+                let role_a = new Object();
+                role_a.id = 2;
+                roles.push(role_a);
+            }
+
+       let  response = await    fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: username,
+                    password: password1,
+                    age: age1,
+                    roles: roles
+                })
+            });
+            window.location.reload(true);
+            let answer = await response.name;
+            console.log(answer);
+        });
+    }
+    function addUser(){
+       let output23 = `
+         <form id="register" >
+        <h2 class="text-center">Create new user</h2>
+        <div class="form-group">
+            <input id="username" type="text" class="form-control" placeholder="Username" required="required">
+        </div>
+        <div class="form-group">
+            <input id="password" type="password" class="form-control" placeholder="Password" required="required">
+        </div>
+        <div class="form-group">
+            <input id="user_age" type="number" class="form-control" placeholder="age">
+        </div>
+        <input type="checkbox" id="role_user" name="role_user" value="ROLE_USER">
+        <label for="role_user">ROLE_USER</label><br>
+        <input type="checkbox" id="role_admin" name="role_user" value="ROLE_ADMIN">
+        <label for="role_admin">ROLE_ADMIN</label><br>
+        <div class="form-group">
+            <button onclick="register()" class="btn btn-success">Add user</button>
+        </div>
+        </form>
+    `
+        let value23 = document.getElementById('add');
+        value23.innerHTML = output23;
+
+    }
+    function deleteUser(id) {
+
+        fetch('http://localhost:8080/delete/' + id,{
+            method:"DELETE"
+        })
+        window.location.reload(true);
+    }
+    function updateUser(){
+        let al = document.getElementById('edit');
+        al.addEventListener('click',function (event){
+            event.preventDefault();
+        })
+        let id = document.getElementById('id').value;
+        let name = document.getElementById('edit_name').value;
+        let password = document.getElementById('edit_password').value;
+        let age = document.getElementById('edit_age').value;
+        let roles = [];
+        if(document.getElementById('role_user1').checked){
+            let array = new Object();
+            array.id = 1;
+            roles.push(array);
+        }
+        if(document.getElementById('role_admin1').checked){
+            let role_a = new Object();
+            role_a.id = 2;
+            roles.push(role_a); 
+        }
+
+        fetch('http://localhost:8080/edit',{
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body :JSON.stringify({
+                id:id,
+                name:name,
+                password:password,
+                age:age,
+                roles:roles
+            })
+        });  window.location.reload(true);}
+
+  function findById(id){
+        fetch('http://localhost:8080/find/' + id)
+      .then(response => response.json())
+      .then(data =>{
+
+         let  output = `
+             <form id="edit" >
+                    <h2 class="text-center">${data.name} update</h2>
+                 <input id="id" type="hidden" value="${data.id}">
+                 <input id="edit_name" type="text" value="${data.name}">
+                 <input id="edit_password" type="text" value="${data.password}"/>
+                 <input id="edit_age" type="text" value="${data.age}"/>
+                 <br>
+                 <input type="checkbox" id="role_user1">
+                 <label for="role_user1">ROLE_USER</label><br>
+
+                 <input type="checkbox" id="role_admin1">
+                 <label for="role_admin1">ROLE_ADMIN</label>
+                  <br>
+                <button id="noUpdate" onclick="updateUser()" class="btn btn-success">update</button>
+       </form>
+          `
+          let value = document.getElementById('update');
+          value.innerHTML = output;
+      })
+  }
+
+
+let url2 = 'http://localhost:8080/getUsers';
+fetch(url2)
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(function (user) {
+            let mass =[];
+            user.roles.map(role =>{
+                mass.push(role.role);
+            })
+            let output = `
+                    <td id="user-id"> ${user.id}</td>
+                    <td> ${user.name}</td>
+                    <td> ${user.password}</td>
+                    <td> ${user.age}</td>
+                    <td> ${mass} </td>
+                    <td>
+                        <input type="button" onclick="deleteUser(${user.id})" value="delete  ${user.name}"class="btn btn-outline-danger">
+                        <input type="button" onclick="findById(${user.id})" value="update" class="btn btn-outline-info" >
+                    </td>
+                 `;
+            let value1 = document.getElementById('table-id');
+            value1.innerHTML += output;
+        })})
+</script>
+<!--<script src="../static/index.js"></script>-->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+</body>
+</html>
